@@ -5,8 +5,8 @@ class UserSchema(BaseModel):
     prezime: str = Field(default = None)
     username: str = Field(default = None)
     password: str = Field(default = None)
-    class Config:
-        the_schema = {
-            "user_demo" : {
-            }
-        }
+    is_admin: bool = Field(default = False)
+
+class UserLoginSchema(BaseModel):
+    username: str = Field(default = None)
+    password: str = Field(default = None)

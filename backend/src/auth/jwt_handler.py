@@ -9,7 +9,7 @@ JSWT_ALGORITHM = config("algorithm")
 # Function returns the generated tokens
 def token_response(token: str):
     return {
-        "access token" : token
+        "access_token" : token
     }
 
 # Function used for signing the JWT string
