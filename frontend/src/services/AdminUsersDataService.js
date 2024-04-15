@@ -16,6 +16,10 @@ class AdminSettingsUsersDataService {
   delete(id) {
     return http.delete(`/api/users/${id}`);
   }
+
+  getTypes() {
+    return http.get(`/api/users/types`);
+  }
 }
 
 export default new AdminSettingsUsersDataService();

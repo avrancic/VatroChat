@@ -3,7 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import LoginMainView from '../views/LoginMainView.vue'
 
 import AdminMainView from '@/views/AdminMainView.vue'
-import AdminEmployeesChildView from '@/views/AdminEmployeesChildView.vue'
+import AdminShiftsChildView from '@/views/AdminShiftsChildView.vue'
 import AdminUsersChildView from '@/views/AdminUsersChildView.vue'
 import ChatView from '../views/ChatView.vue'
 
@@ -37,7 +37,7 @@ const router = createRouter({
       component: AdminMainView,
       beforeEnter: authGuard,
       children: [
-        { path: 'employees', name: 'AdminEmployees', component: AdminEmployeesChildView },
+        { path: 'shifts', name: 'AdminShifts', component: AdminShiftsChildView },
         { path: 'users', name: 'AdminUsers', component: AdminUsersChildView },
       ],
     },

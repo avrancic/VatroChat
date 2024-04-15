@@ -8,10 +8,10 @@
             <br>
             <ul class="text-secondary">
                 <li>
-                    <RouterLink :to="{ name: 'AdminEmployees' }">Employees list</RouterLink>
+                    <RouterLink :to="{ name: 'AdminUsers' }">Korisnici</RouterLink>
                 </li>
                 <li>
-                    <RouterLink :to="{ name: 'AdminUsers' }">Korisnici</RouterLink>
+                    <RouterLink :to="{ name: 'AdminShifts' }">Smijene</RouterLink>
                 </li>
             </ul>
         </nav>

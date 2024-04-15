@@ -2,14 +2,14 @@
   <div class="container">
     <div class="row">
       <div>
-        <h1>Employees</h1>
+        <h1>Smjene</h1>
         <hr><br><br>
         <alert :message=alertMessage :type=alertMessageType v-if="showMessage"></alert>
         <button type="button" class="btn btn-success btn-sm" @click="toggleAddModal">
-          Add employee
+          Dodaj smjenu
         </button>
         <br><br>
-        <vue-good-table :rows="employees" :columns="columns" :pagination-options="{ enabled: true, mode: 'records' }">
+        <vue-good-table :rows="shifts" :columns="columns" :pagination-options="{ enabled: true, mode: 'records' }">
           <template #table-row="props">
             <span v-if="props.column.field == 'after'">
               <button type="button" class="btn btn-warning btn-sm me-1" @click="toggleEditModal(props.row)">E</button>
@@ -47,11 +47,6 @@
               </div>
               <div class="mb-3">
                 <label for="addType" class="form-label">Type:</label>
-                <select class="form-control" id="addType" v-model="addForm.type">
-                  <option v-for="option in employeeTypes" :key="option._id" :value="option._id">
-                    {{ option.name }}
-                  </option>
-                </select>
               </div>
               <div class="btn-group" role="group">
                 <button type="button" class="btn btn-primary btn-sm me-1" @click="handleAddSubmit">Submit</button>
@@ -88,11 +83,6 @@
               </div>
               <div class="mb-3">
                 <label for="editType" class="form-label">Type</label>
-                <select class="form-control" id="editType" v-model="editForm.type">
-                  <option v-for="option in employeeTypes" :key="option._id" :value="option._id">
-                    {{ option.name }}
-                  </option>
-                </select>
               </div>
               <div class="btn-group" role="group">
                 <button type="button" class="btn btn-primary btn-sm me-1" @click="handleEditSubmit">Submit</button>
@@ -109,23 +99,24 @@
 
 <script>
 import MessageAlert from '@/components/AdminMessage.vue';
-import EmployeesDataService from "@/services/AdminEmployeesDataService";
+import AdminShiftsDataService from "@/services/AdminShiftsDataService";
+import AdminUsersDataService from "@/services/AdminUsersDataService";
 
 export default {
   data() {
     return {
       columns: [
         {
-          label: 'Name',
-          field: 'name'
+          label: 'Korisnici',
+          field: 'users'
         },
         {
-          label: 'Surname',
-          field: 'surname'
+          label: 'Od',
+          field: 'from_time'
         },
         {
-          label: 'Type',
-          field: 'type.name',
+          label: 'Do',
+          field: 'to_time',
         },
         {
           field: 'after',
@@ -135,22 +126,22 @@ export default {
       activeAddModal: false,
       activeEditModal: false,
       addForm: {
-        name: '',
-        surname: '',
-        type: ''
+        users: [],
+        from_time: '',
+        to_time: ''
       },
       employees: [],
       editForm: {
         id: '',
-        name: '',
-        surname: '',
-        type: ''
+        users: [],
+        from_time: '',
+        to_time: ''
       },
       alertMessage: '',
       alertMessageType: 1,
       showMessage: false,
-      employeeTypes: [
-      ]
+      users: [],
+      shifts: []
     };
   },
   components: {
@@ -158,7 +149,7 @@ export default {
   },
   methods: {
     addItem(payload) {
-      EmployeesDataService.create(payload)
+      AdminShiftsDataService.create(payload)
         .then(() => {
           this.getData();
           this.alertMessage = 'Employee added!';
@@ -174,10 +165,16 @@ export default {
         });
     },
     getData() {
-      EmployeesDataService.getAll()
+      AdminShiftsDataService.getAll()
         .then(response => {
-          this.employees = response.data.employees;
-          this.employeeTypes = response.data.employeeTypes;
+          this.shifts = response.data;
+        })
+        .catch(e => {
+          console.log(e);
+        });
+        AdminUsersDataService.getAll()
+        .then(response => {
+          this.users = response.data;
         })
         .catch(e => {
           console.log(e);
@@ -213,7 +210,7 @@ export default {
       this.editForm.type = '';
     },
     removeItem(itemID) {
-      EmployeesDataService.delete(itemID)
+      AdminShiftsDataService.delete(itemID)
         .then(() => {
           this.getData();
           this.alertMessage = 'Employee removed!';
@@ -253,7 +250,7 @@ export default {
       }
     },
     updateItem(payload, itemID) {
-      EmployeesDataService.update(itemID, payload)
+      AdminShiftsDataService.update(itemID, payload)
         .then(() => {
           this.getData();
           this.alertMessage = 'Employee updated!';

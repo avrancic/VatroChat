@@ -1,7 +1,7 @@
 import pymongo
 from pymongo import mongo_client
 from decouple import config
-from src.model import UserCreateSchema, UserTypeSchema
+from src.model import UserCreateSchema, UserTypeBaseSchema
 
 client = mongo_client.MongoClient(config("mongo_url"))
 
@@ -11,6 +11,8 @@ db = client[config("mongo_db")]
 
 User = db.users
 UserType = db.users_types
+Incidents = db.incidents
+Shifts = db.shifts
 
 async def resetDB():
     for collection_name in db.list_collection_names():
@@ -33,8 +35,8 @@ async def createInitialAdminUser():
     print("Default user created")
 
 async def initialData():
-    data = UserTypeSchema(type='JVP')
+    data = UserTypeBaseSchema(type='JVP')
     UserType.insert_one(data.model_dump())
-    data = UserTypeSchema(type='DVD')
+    data = UserTypeBaseSchema(type='DVD')
     UserType.insert_one(data.model_dump())
     print("Default user types created")

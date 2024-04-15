@@ -57,14 +57,15 @@
               <div class="mb-3">
                 <label for="addRole" class="form-label">Vrsta postrojbe:</label>
                 <select class="form-control" id="addRole" v-model="addForm.type">
-                  <option v-for="option in typeList" :key="option.id" :value="option.id">
+                  <option v-for="option in usersTypes" :key="option.id" :value="option.id">
                     {{ option }}
                   </option>
                 </select>
               </div>
               <div class="mb-3">
                 <div class="form-check">
-                  <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" v-model="addForm.admin">
+                  <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault"
+                    v-model="addForm.is_admin">
                   <label class="form-check-label" for="flexCheckDefault">Admin</label>
                 </div>
               </div>
@@ -111,14 +112,15 @@
               <div class="mb-3">
                 <label for="addRole" class="form-label">Vrsta postrojbe:</label>
                 <select class="form-control" id="addRole" v-model="editForm.type">
-                  <option v-for="option in typeList">
-                    {{ option }}
+                  <option v-for="option in usersTypes" :key="option.id" :value="option">
+                    {{ option.type }}
                   </option>
                 </select>
               </div>
               <div class="mb-3">
                 <div class="form-check">
-                  <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" v-model="editForm.admin">
+                  <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault"
+                    v-model="editForm.is_admin">
                   <label class="form-check-label" for="flexCheckDefault">Admin</label>
                 </div>
               </div>
@@ -157,7 +159,7 @@ export default {
         },
         {
           label: 'Vrsta postrojbe',
-          field: 'type',
+          field: 'type.type',
         },
         {
           label: 'Admin',
@@ -176,7 +178,7 @@ export default {
         username: '',
         password: '',
         type: '',
-        admin: false
+        is_admin: false
       },
       editForm: {
         name: '',
@@ -184,12 +186,12 @@ export default {
         username: '',
         password: '',
         type: '',
-        admin: false
+        is_admin: false
       },
       alertMessage: '',
       alertMessageType: 1,
       showMessage: false,
-      typeList: ['JVP', 'DVD'],
+      usersTypes: [],
       usersList: []
     };
   },
@@ -216,7 +218,15 @@ export default {
     getData() {
       UsersDataService.getAll()
         .then(response => {
-          this.usersList = response.data.users;
+          this.usersList = response.data;
+        })
+        .catch(e => {
+          console.log(e);
+        });
+
+      UsersDataService.getTypes()
+        .then(response => {
+          this.usersTypes = response.data;
         })
         .catch(e => {
           console.log(e);
@@ -231,7 +241,7 @@ export default {
       this.initForm();
     },
     handleDeleteItem(item) {
-      this.removeItem(item._id);
+      this.removeItem(item.id);
     },
     handleEditCancel() {
       this.toggleEditModal();
@@ -240,7 +250,7 @@ export default {
     },
     handleEditSubmit() {
       this.toggleEditModal();
-      this.updateItem(this.editForm, this.editForm._id);
+      this.updateItem(this.editForm, this.editForm.id);
     },
     initForm() {
       this.addForm.name = '';
@@ -249,7 +259,7 @@ export default {
       this.addForm.password = '';
       this.addForm.password = '';
       this.addForm.type = '';
-      this.addForm.admin = false;
+      this.addForm.is_admin = false;
 
       this.editForm.id = '';
       this.editForm.name = '';
@@ -258,7 +268,7 @@ export default {
       this.editForm.password = '';
       this.editForm.password = '';
       this.editForm.type = '';
-      this.editForm.admin = false;
+      this.editForm.is_admin = false;
     },
     removeItem(itemID) {
       UsersDataService.delete(itemID)
@@ -287,13 +297,13 @@ export default {
     },
     toggleEditModal(item) {
       if (item) {
-        this.editForm.id = item._id;
+        this.editForm.id = item.id;
         this.editForm.name = item.name;
         this.editForm.surname = item.surname;
         this.editForm.username = item.username;
         this.editForm.password = "";
         this.editForm.type = item.type;
-        this.editForm.admin = item.is_admin;
+        this.editForm.is_admin = item.is_admin;
       }
       const body = document.querySelector('body');
       this.activeEditModal = !this.activeEditModal;
