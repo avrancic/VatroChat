@@ -1,23 +1,20 @@
 import http from "@/http-common";
 
 class AuthService {
-  login(user) {
-    return http
-      .post('http://127.0.0.1:8000/user/login', {
-        username: user.username,
-        password: user.password
-      })
+  login(username, password) {
+    return http.post('api/user/login', {
+      username: username,
+      password: password
+    })
       .then(response => {
-        console.log(response);
-        if (response.data.token) {
-          localStorage.setItem('jwl', response.data.token);
-        }
-
-        return response.data.token;
+        return response.data;
       });
   }
   logout() {
-    localStorage.removeItem('jwl');
+    return http.post('api/user/logout', {})
+      .then(response => {
+        return response;
+      });
   }
 }
 

@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="chat">
         <div class="sidebar">
             <a href="#" class="close-sidebar"><i class="icon feather icon-x-square"></i></a>
             <div class="logo">
@@ -9,12 +9,13 @@
                     <CaUserAvatar class="img-fluid rounded-circle" />
                 </a>
                 <div class="dropdown-menu dropdown-menu-right" style="">
-                    <a href="profile.html" class="dropdown-item px-3 align-self-center d-flex">
-                        <span class="icon feather icon-user me-2 h6 mb-0"></span> Administration</a>
+                    <RouterLink v-if="authStore.isAdmin" :to="{ name: 'Admin' }"><span v-if="authStore.isAdmin" class="icon feather icon-user me-2 h6 mb-0"></span> Administration</RouterLink>
                     <a href="#" class="dropdown-item px-3 align-self-center d-flex chat-setting">
                         <span class="icon feather icon-settings me-2 h6 mb-0"></span> Account Settings</a>
                     <a href="page-login.html" class="dropdown-item px-3 text-danger align-self-center d-flex">
                         <span class="icon feather icon-log-out me-2 h6  mb-0"></span> Sign Out</a>
+                        
+                        
                 </div>
             </div>
             <ul class="nav nav-tabs  border-bottom theme-border" id="tabs-tab" role="tablist">
@@ -95,9 +96,14 @@
 
 <script>
 import { CaUserAvatar } from "@kalimahapps/vue-icons";
+import { useAuthStore } from '@/stores/authStore';
 
 export default {
-    components: {
+    setup() {
+      const authStore = useAuthStore();
+      return { authStore };
+   },
+   components: {
         CaUserAvatar
     },
     data() {
@@ -106,24 +112,24 @@ export default {
                 { id: 1, name: 'General', description: 'General Chat Room', image: 'path-to-image', lastUpdated: '12:00 PM', messages: [] },
             ],
             messages: [
-            { id: 0, name: "Arian Vrančić", date: "28.01.2024.", text: "Test text text text text text text text text text", type: 1 },
-            { id: 0, name: "Arian Vrančić", date: "28.01.2024.", text: "Test text text text text text text text text text", type: 0 },
-            { id: 0, name: "Arian Vrančić", date: "28.01.2024.", text: "Test text text text text text text text text text", type: 1 },
-            { id: 0, name: "Arian Vrančić", date: "28.01.2024.", text: "Test text text text text text text text text text", type: 1 },
-            { id: 0, name: "Arian Vrančić", date: "28.01.2024.", text: "Test text text text text text text text text text", type: 0 },
-            { id: 0, name: "Arian Vrančić", date: "28.01.2024.", text: "Test text text text text text text text text text", type: 1 },
-            { id: 0, name: "Arian Vrančić", date: "28.01.2024.", text: "Test text text text text text text text text text", type: 1 },
-            { id: 0, name: "Arian Vrančić", date: "28.01.2024.", text: "Test text text text text text text text text text", type: 1 },
-            { id: 0, name: "Arian Vrančić", date: "28.01.2024.", text: "Test text text text text text text text text text", type: 0 },
-            { id: 0, name: "Arian Vrančić", date: "28.01.2024.", text: "Test text text text text text text text text text", type: 1 },
-            { id: 0, name: "Arian Vrančić", date: "28.01.2024.", text: "Test text text text text text text text text text", type: 1 },
-            { id: 0, name: "Arian Vrančić", date: "28.01.2024.", text: "Test text text text text text text text text text", type: 1 },
-            { id: 0, name: "Arian Vrančić", date: "28.01.2024.", text: "Test text text text text text text text text text", type: 0 },
-            { id: 0, name: "Arian Vrančić", date: "28.01.2024.", text: "Test text text text text text text text text text", type: 1 },
-            { id: 0, name: "Arian Vrančić", date: "28.01.2024.", text: "Test text text text text text text text text text", type: 1 },
-            { id: 0, name: "Arian Vrančić", date: "28.01.2024.", text: "Test text text text text text text text text text", type: 1 },
-            { id: 0, name: "Arian Vrančić", date: "28.01.2024.", text: "Test text text text text text text text text text", type: 0 },
-            { id: 0, name: "Arian Vrančić", date: "28.01.2024.", text: "Test text text text text text text text text text", type: 1 },
+                { id: 0, name: "Arian Vrančić", date: "28.01.2024.", text: "Test text text text text text text text text text", type: 1 },
+                { id: 0, name: "Arian Vrančić", date: "28.01.2024.", text: "Test text text text text text text text text text", type: 0 },
+                { id: 0, name: "Arian Vrančić", date: "28.01.2024.", text: "Test text text text text text text text text text", type: 1 },
+                { id: 0, name: "Arian Vrančić", date: "28.01.2024.", text: "Test text text text text text text text text text", type: 1 },
+                { id: 0, name: "Arian Vrančić", date: "28.01.2024.", text: "Test text text text text text text text text text", type: 0 },
+                { id: 0, name: "Arian Vrančić", date: "28.01.2024.", text: "Test text text text text text text text text text", type: 1 },
+                { id: 0, name: "Arian Vrančić", date: "28.01.2024.", text: "Test text text text text text text text text text", type: 1 },
+                { id: 0, name: "Arian Vrančić", date: "28.01.2024.", text: "Test text text text text text text text text text", type: 1 },
+                { id: 0, name: "Arian Vrančić", date: "28.01.2024.", text: "Test text text text text text text text text text", type: 0 },
+                { id: 0, name: "Arian Vrančić", date: "28.01.2024.", text: "Test text text text text text text text text text", type: 1 },
+                { id: 0, name: "Arian Vrančić", date: "28.01.2024.", text: "Test text text text text text text text text text", type: 1 },
+                { id: 0, name: "Arian Vrančić", date: "28.01.2024.", text: "Test text text text text text text text text text", type: 1 },
+                { id: 0, name: "Arian Vrančić", date: "28.01.2024.", text: "Test text text text text text text text text text", type: 0 },
+                { id: 0, name: "Arian Vrančić", date: "28.01.2024.", text: "Test text text text text text text text text text", type: 1 },
+                { id: 0, name: "Arian Vrančić", date: "28.01.2024.", text: "Test text text text text text text text text text", type: 1 },
+                { id: 0, name: "Arian Vrančić", date: "28.01.2024.", text: "Test text text text text text text text text text", type: 1 },
+                { id: 0, name: "Arian Vrančić", date: "28.01.2024.", text: "Test text text text text text text text text text", type: 0 },
+                { id: 0, name: "Arian Vrančić", date: "28.01.2024.", text: "Test text text text text text text text text text", type: 1 },
             ],
         };
     },
@@ -132,7 +138,7 @@ export default {
 };
 </script>  
 
-<style>
+<style scoped>
 .chat-history {
     padding: 20px;
     border-bottom: 2px solid #fff
@@ -223,11 +229,8 @@ export default {
     height: 0
 }
 
-body {
-    background-color: #74EBD5;
-    background-image: linear-gradient(90deg, #74EBD5 0%, #9FACE6 100%);
+.chat {
     font-size: 13px;
-
 }
 
 ::-webkit-scrollbar {

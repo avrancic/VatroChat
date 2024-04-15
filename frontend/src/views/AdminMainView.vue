@@ -1,6 +1,5 @@
 <template>
     <div class="admin">
-
         <nav id="sidebar" v-bind:class="(leftNavIsOpen) ? 'active' : ''">
             <div class="sidebar-header">
                 <h1>VatroChat</h1>
@@ -9,32 +8,18 @@
             <br>
             <ul class="text-secondary">
                 <li>
-                </li>
-                <br>
-                <li>
-                    <!--RouterLink :to="{ name: 'AdminIncidents' }">Incidents</RouterLink-->
+                    <RouterLink :to="{ name: 'AdminEmployees' }">Employees list</RouterLink>
                 </li>
                 <li>
-                    <!--RouterLink :to="{ name: 'AdminShifts' }">Shifts</RouterLink-->
-                </li>
-
-                <br>
-
-                <li v-if="isAdmin">
-                    <!--RouterLink :to="{ name: 'AdminSettingsVehicles' }">Vehicles list</RouterLink-->
-                </li>
-                <li v-if="isAdmin">
-                    <!--RouterLink :to="{ name: 'AdminSettingsEmployees' }">Employees list</RouterLink-->
-                </li>
-                <li v-if="isAdmin">
-                    <!--RouterLink :to="{ name: 'AdminSettingsUsers' }">Users</RouterLink-->
+                    <RouterLink :to="{ name: 'AdminUsers' }">Korisnici</RouterLink>
                 </li>
             </ul>
         </nav>
 
         <div id="body">
             <nav class="navbar navbar-expand-lg navbar-white bg-white">
-                <button type="button" id="sidebarCollapse" class="btn btn-light" @click="leftNavIsOpen = !leftNavIsOpen">| |
+                <button type="button" id="sidebarCollapse" class="btn btn-light"
+                    @click="leftNavIsOpen = !leftNavIsOpen">| |
                     |</button>
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
@@ -43,7 +28,7 @@
                             <div class="nav-dropdown">
                                 <a href="#" id="nav2" class="nav-item nav-link dropdown-toggle text-secondary"
                                     data-bs-toggle="dropdown" aria-expanded="false">
-                                    <span>{{ (currentUser != null) ? currentUser.name : "" }}</span>
+                                    <span>{{ (currentUser != null) ? currentUser : "" }}</span>
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-end nav-link-menu">
                                     <ul class="nav-list">
@@ -64,21 +49,21 @@
 </template>
 
 <script>
+import { useAuthStore } from '@/stores/authStore';
+
 export default {
+    setup() {
+        const authStore = useAuthStore();
+
+        return { authStore };
+    },
     data: () => ({
         leftNavIsOpen: false
     }),
     computed: {
         currentUser() {
-            //if (this.$store.state.auth.data == null) return;
-
-            //return this.$store.state.auth.data;
+            return this.authStore.getIme + " " + this.authStore.getPrezime;
         },
-        isAdmin() {
-            //if (this.$store.state.auth.data == null) return false;
-
-            //return this.$store.state.auth.data.role.name == "admin";
-        }
     },
     methods: {
         logOut() {
@@ -92,7 +77,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
 #app .admin {
     font-family: sans-serif;
     display: flex;
@@ -101,7 +86,7 @@ export default {
     overflow-x: hidden
 }
 
-body {
+#app .admin {
     width: 100%;
     height: 100%;
     background: #f4f6fa;

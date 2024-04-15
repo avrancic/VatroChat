@@ -7,19 +7,22 @@ JWT_SECRET = config("secret")
 JSWT_ALGORITHM = config("algorithm")
 
 # Function returns the generated tokens
-def token_response(token: str):
+def token_response(ime: str, prezime: str, token: str, isAdmin : bool):
     return {
-        "access_token" : token
+        "ime" : ime,
+        "prezime" : prezime,
+        "isAdmin" : isAdmin,
+        "token" : token
     }
 
 # Function used for signing the JWT string
-def signJWT(userId : str):
+def signJWT(ime: str, prezime: str, userId : str, isAdmin : bool):
     payload = {
         "userId": userId,
         "expiry": time.time() + 600
     }
     token = jwt.encode(payload, JWT_SECRET, algorithm=JSWT_ALGORITHM)
-    return token_response(token)
+    return token_response(ime, prezime, token, isAdmin)
 
 # Function used to decode the JWT string
 def decodeJWT(token: str):

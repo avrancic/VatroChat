@@ -1,109 +1,214 @@
 <template>
-    <section class="ftco-section">
-      <div class="container">
-        <div class="row justify-content-center">
-          <div class="col-md-7 col-lg-5">
-            <div class="login-wrap p-4 p-md-5">
-              <div class="icon d-flex align-items-center justify-content-center">
-                <span class="fa fa-user-o"></span>
+  <div class="login-container">
+     <div class="login">
+        <div class="hover">Prijavite se na svoj račun</div>
+        <div class="body">
+           <form @submit.prevent="handleLogin">
+              <div class="item">
+                 <label>Korisničko ime</label>
+                 <input v-model="username" type="text" class="form-control rounded-left" placeholder="Username" />
               </div>
-              <h3 class="text-center mb-4">Sign In</h3>
-              <Form class="login-form" @submit="handleLogin" :validation-schema="schema">
-                <div class="form-group">
-                  <Field name="username" type="text" class="form-control rounded-left" placeholder="Username" />
-                  <ErrorMessage name="username" class="error-feedback" />
-                </div>
-                <br>
-                <div class="form-group">
-                  <Field name="password" type="password" class="form-control rounded-left" placeholder="Password" />
-                  <ErrorMessage name="password" class="error-feedback" />
-                </div>
-                <br>
-                <div class="form-group">
-                  <button class="form-control btn btn-primary rounded submit px-3" :disabled="loading">
-                    <span v-show="loading" class="spinner-border spinner-border-sm"></span>
-                    <span>Login</span>
-                  </button>
-                </div>
-                <div class="form-group">
-                  <div v-if="message" class="alert alert-danger" role="alert">
-                    {{ message }}
-                  </div>
-                </div>
-              </Form>
-            </div>
-          </div>
+              <div class="item">
+                 <label>Lozinka</label>
+                 <input v-model="password" type="password" class="form-control rounded-left" placeholder="Password" />
+              </div>
+              <div class="item">
+                 <button>Prijavi me</button>
+              </div>
+           </form>
         </div>
-      </div>
-    </section>
-  </template>
-  
-  <script>
-  import { Form, Field, ErrorMessage } from "vee-validate";
-  import * as yup from "yup";
-  
-  export default {
-    components: {
-      Form,
-      Field,
-      ErrorMessage,
-    },
-    data() {
-      const schema = yup.object().shape({
-        username: yup.string().required("Username is required!"),
-        password: yup.string().required("Password is required!"),
-      });
-  
-      return {
-        login: {
-          email: "",
-          password: ""
-        },
-        loading: false,
-        message: "",
-        schema,
-      };
-    },
-    computed: {
-      loggedIn() {
-        return this.$store.state.auth.status.loggedIn;
-      },
-    },
-    created() {
-      if (this.loggedIn) {
-        this.$router.push("/");
-      }
-    },
-    methods: {
-      handleLogin(user) {
-        this.loading = true;
-  
-        this.$store.dispatch("auth/login", user).then(
-          () => {
-            this.$router.push("/");
-          },
-          (error) => {
-            this.loading = false;
-            this.message =
-              (error.response &&
-                error.response.data &&
-                error.response.data.message) ||
-              error.message ||
-              error.toString();
-          }
-        );
-      },
-    },
-  };
-  </script>
-  
-  <style scoped>
-  label {
-    display: block;
-    margin-top: 10px;
-  }
-  
-  .error-feedback {
-    color: red;
-  }
-  </style>
+     </div>
+  </div>
+</template>
+
+<script>
+import AuthService from "@/services/AuthService";
+import { useAuthStore } from '@/stores/authStore';
+
+export default {
+  setup() {
+     const authStore = useAuthStore();
+     return { authStore };
+  },
+  data() {
+     return {
+        username: '',
+        password: '',
+     };
+  },
+  methods: {
+     handleLogin() {
+        AuthService.login(this.username, this.password)
+           .then(response => {
+              this.authStore.setUser(response);
+
+              this.$router.push({ path: '/' })
+           })
+           .catch(e => {
+              console.log(e);
+           });
+     },
+  },
+};
+</script>
+
+<style scoped>
+.login-container {
+  background: #f5f5f5;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   height: 100%; 
+   height: 100dvh; 
+   width: 100%;
+}
+
+.login {
+   width: 420px;
+   flex-direction: column;
+   background-color: #fff;
+   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+   margin: 0 20px;
+   z-index: 99999
+}
+
+.login .hover {
+   padding: 20px;
+   color: #fff;
+   background: #2682D3;
+   text-align: center;
+   font-size: 20px
+}
+
+.login .body {
+   padding: 30px
+}
+
+.login button {
+   border-radius: 2px;
+   border: 0;
+   background-color: #2682D3;
+   color: #FFF;
+   padding: 6px 15px;
+   font-size: 18px;
+   line-height: 24px;
+   cursor: pointer;
+   transition-property: background-color;
+   transition-duration: .2s;
+   transition-timing-function: linear;
+   padding: 10px;
+   width: 100%;
+   user-select: none;
+   -webkit-tap-highlight-color: transparent
+}
+
+.login button:hover {
+   background-color: #2475bd;
+   box-shadow: none
+}
+
+.login button:focus {
+   outline: none
+}
+
+.login button:active {
+   box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.4)
+}
+
+.login .item {
+   margin-bottom: 1rem
+}
+
+.login .item:last-child {
+   margin-bottom: 0
+}
+
+.login label {
+   font-family: Arial;
+   color: #3c434a;
+   display: block;
+   font-weight: 600;
+   font-size: 14px;
+   margin-bottom: 10px
+}
+
+.login input {
+   display: block;
+   width: 100%;
+   transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+   height: 46px;
+   padding: 10px 16px;
+   border-radius: 2px;
+   border: 1px solid #ced4da;
+   font-size: inherit
+}
+
+.login input:focus {
+   color: #495057;
+   background-color: #fff;
+   border-color: #80bdff;
+   outline: 0;
+   box-shadow: 0 0 0 .2rem rgba(0, 123, 255, .25);
+   background: #fff;
+   border: 1px solid #e0e0e0;
+   -webkit-box-shadow: none;
+   box-shadow: none
+}
+
+.login input::-webkit-input-placeholder {
+   color: #6c757d;
+   opacity: 1
+}
+
+.login input::placeholder {
+   color: #6c757d;
+   opacity: 1
+}
+
+.copyright {
+   display: grid;
+   position: fixed;
+   bottom: 20px;
+   left: 20px;
+   color: gray
+}
+
+.copyright span:first-child {
+   font-size: 15px
+}
+
+.copyright span:last-child {
+   font-size: 10px
+}
+
+input:-webkit-autofill {
+   -webkit-text-fill-color: black !important;
+   font-size: 16px
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+   -webkit-box-shadow: 0 0 0 30px #fff inset !important
+}
+
+@media only screen and (max-device-width : 500px) {
+   body {
+      align-items: start;
+      margin-top: 0
+   }
+
+   .login {
+      margin: 0;
+      width: 100%
+   }
+}
+
+@media only screen and (max-device-width : 500px) {
+   .login {
+      margin: 0;
+      width: 100%
+   }
+}
+</style>

@@ -1,13 +1,37 @@
-import axios from "axios";
+import axios from 'axios';
+import { useAuthStore } from './stores/authStore';
+import router from './router'
 
-let jwl = localStorage.getItem('jwl');
+axios.defaults.withCredentials = true
 
-var headers = {
-  "Content-type": "application/json",
-}
-
-if (jwl) headers['x-access-token'] = jwl;
-
-export default axios.create({
-  headers: headers 
+const api = axios.create({
+  baseURL: 'http://127.0.0.1:8000/', // REST API base URL
 });
+
+api.interceptors.response.use(resp => {
+  return resp;
+},
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      useAuthStore().clearUser();
+
+      router.push({ path: '/login' })
+    }
+    return Promise.reject(error);
+  }
+);
+
+api.interceptors.request.use(
+  config => {
+    const token = useAuthStore().getToken;
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  error => {
+    return Promise.reject(error);
+  }
+);
+
+export default api;
