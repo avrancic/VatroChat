@@ -2,26 +2,23 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
+import { format } from 'date-fns';
+
 import Datepicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
+
+import IncidentsDataService from "@/services/incidentsDataService";
 
 const router = useRouter();
 
 const incidents = ref([]);
+const workers = ref([]);
 
 const activeAddEditModal = ref(false);
 const activeRemoveModal = ref(false);
 const searchQuery = ref('');
 
 const currentId = ref(null);
-
-// Define options for the multiselect
-const workerOptions = [
-    { value: 'Elvis Prenc', label: 'Elvis Prenc' },
-    { value: 'Adrian Vrančić', label: 'Adrian Vrančić' },
-    { value: 'Berislav Vrančić', label: 'Berislav Vrančić' },
-    // Add more options as needed
-];
 
 const addEditForm = ref({
     id: null,
@@ -32,17 +29,6 @@ const addEditForm = ref({
     workers: null
 });
 
-for (let i = 0; i < 5; i++) {
-    incidents.value.push({
-        id: "dsadadsadsadsa",
-        open_from: "21.05.2024. 19:09",
-        open_until: "21.05.2024. 19:09",
-        location: "Vladimir Gortan 18",
-        title: "Text test test test test test..",
-        workers: "Elvis Prenc, Adrian Vrančić, Berislav Vrančić, Elvis Prenc, Adrian Vrančić, Berislav Vrančić"
-    });
-}
-
 const handleIncidentClick = (id) => {
     router.push({ path: '/incident', query: { id } });
 };
@@ -50,17 +36,14 @@ const handleIncidentClick = (id) => {
 const openRemoveModal = (id = null) => {
     currentId.value = id;
 
-    // Open the remove modal
     activeRemoveModal.value = true;
 };
 const closeRemoveModal = () => {
     activeRemoveModal.value = false;
 };
 const openAddEditModal = (id = null) => {
-    // Find the incident to edit based on the id
     const incidentToEdit = incidents.value.find(incident => incident.id === id);
 
-    // If an incident is found, populate the addEditForm
     if (incidentToEdit) {
         addEditForm.value = {
             id: incidentToEdit.id,
@@ -71,7 +54,6 @@ const openAddEditModal = (id = null) => {
             workers: incidentToEdit.workers
         };
     } else {
-        // Reset the addEditForm if no incident is found
         addEditForm.value = {
             id: null,
             title: null,
@@ -82,24 +64,43 @@ const openAddEditModal = (id = null) => {
         };
     }
 
-    // Open the modal
     activeAddEditModal.value = true;
 
-    // Set the currentId
     currentId.value = id;
 };
 const closeAddEditModal = () => {
     activeAddEditModal.value = false;
 };
 
-const addIncident = () => {
-    closeAddEditModal();
+const addEditItem = () => {
+    const itemToEdit = incidents.value.find(i => i.id === currentId.value);
+
+    if (!itemToEdit) {
+        IncidentsDataService.create(addEditForm.value)
+            .then((response) => {
+                incidents.value.push(response.data);
+
+                closeAddEditModal();
+            })
+            .catch(error => {
+                console.log(error);
+            });
+    } else {
+        IncidentsDataService.update(itemToEdit.id, addEditForm.value)
+            .then((response) => {
+                const index = incidents.value.findIndex(i => i.id === currentId.value);
+                incidents.value[index] = response.data;
+                closeAddEditModal();
+            })
+            .catch(error => {
+                console.log(error);
+            });
+    }
 };
 
 const removeIncident = () => {
     const index = incidents.value.findIndex(incident => incident.id === currentId.value);
 
-    // If the incident is found, remove it from the incidents array
     if (index !== -1) {
         incidents.value.splice(index, 1);
     }
@@ -120,6 +121,30 @@ const filterIncidents = () => {
         return false;
     });
 };
+
+const getData = () => {
+    IncidentsDataService.getAll()
+        .then(response => {
+            incidents.value = response.data;
+        })
+        .catch(e => {
+            console.log(e);
+        });
+
+    IncidentsDataService.getWorkers()
+        .then(response => {
+            workers.value = response.data;
+        })
+        .catch(e => {
+            console.log(e);
+        });
+}
+
+const workersLabel = ({ name, surname }) => {
+    return `${name} ${surname}`;
+}
+
+getData();
 </script>
 
 <template>
@@ -135,27 +160,27 @@ const filterIncidents = () => {
             </div>
         </div>
 
-        <div class="row mt-4">
-            <div class="col-md-4" v-for="incident in filterIncidents()" :key="incident.id"
-                @click="handleIncidentClick(incident.id)">
-                <div class="card incident-card-body shadow-sm">
-                    <h5 class="mb-3">{{ incident.title }}</h5>
-                    <small class="text-muted p-t-30 db mt-2">Interval:</small>
-                    <div>{{ incident.open_from }} -> {{ incident.open_until }}</div>
+        <MasonryWall class="row mt-4" :items="filterIncidents()" :ssr-columns="1" :column-width="400">
+            <template #default="{ item, index }">
+                <div :style="{ height: `${item}px` }" class="card incident-card-body shadow-sm"
+                    @click="handleIncidentClick(item.id)">
+                    <h5 class="mb-3">{{ item.title }}</h5>
+                    <small class="text-muted p-t-30 db mt-2">Razdoblje:</small>
+                    <div>{{ format(item.open_from, 'dd.MM.yyyy hh:mm') }}{{ (item.open_until != null ? " -> " +
+                        format(item.open_until, 'dd.MM.yyyy hh:mm') : "") }}</div>
                     <small class="text-muted p-t-30 db mt-2">Adresa:</small>
-                    <div>{{ incident.location }}</div>
+                    <div>{{ item.location }}</div>
                     <small class="text-muted p-t-30 db mt-2">Radnici:</small>
-                    <div>{{ incident.workers }}</div>
+                    <div>{{ item.workers.map(entry => entry.name + ' ' + entry.surname).join(', ') }}</div>
                     <div class="mt-auto d-flex justify-content-end pt-4">
                         <button class="btn btn-outline-primary btn-sm me-2"
-                            @click.stop="openAddEditModal(incident.id)">Edit</button>
+                            @click.stop="openAddEditModal(item.id)">Edit</button>
                         <button class="btn btn-outline-danger btn-sm"
-                            @click.stop="openRemoveModal(incident.id)">Remove</button>
+                            @click.stop="openRemoveModal(item.id)">Remove</button>
                     </div>
-
                 </div>
-            </div>
-        </div>
+            </template>
+        </MasonryWall>
     </div>
 
     <!-- Edit/Add Incident Modal -->
@@ -190,14 +215,15 @@ const filterIncidents = () => {
                         </div>
                         <div class="mb-3">
                             <label for="incident-workers" class="col-form-label">Radnici:</label>
-                            <multi-select v-model="addEditForm.workers" :options="workerOptions"      :multiple="true"
-   label="label"/>
+                            <multi-select v-model="addEditForm.workers" :options="workers" :hide-selected="true"
+                                track-by="id" :multiple="true" :custom-label="workersLabel">
+                            </multi-select>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" @click="closeAddEditModal">Odustani</button>
-                    <button type="button" class="btn btn-primary" @click="addIncident">Spremi</button>
+                    <button type="button" class="btn btn-primary" @click="addEditItem">Spremi</button>
                 </div>
             </div>
         </div>

@@ -2,6 +2,7 @@ import "bootstrap"
 import "bootstrap/dist/css/bootstrap.min.css"
 import 'vue-good-table-next/dist/vue-good-table-next.css'
 import 'vue-multiselect/dist/vue-multiselect.css'
+import MasonryWall from '@yeger/vue-masonry-wall'
 
 import './assets/main.css'
 
@@ -25,5 +26,6 @@ app.component('multi-select', VueMultiselect);
 
 app.use(VueGoodTablePlugin)
 app.use(router)
+app.use(MasonryWall)
 
 app.mount('#app')

@@ -11,8 +11,7 @@ db = client[config("mongo_db")]
 
 User = db.users
 UserType = db.users_types
-Incidents = db.incidents
-Shifts = db.shifts
+Incident = db.incidents
 
 async def resetDB():
     for collection_name in db.list_collection_names():
@@ -35,8 +34,8 @@ async def createInitialAdminUser():
     print("Default user created")
 
 async def initialData():
-    data = UserTypeBaseSchema(type='JVP')
+    data = UserTypeBaseSchema(name='JVP')
     UserType.insert_one(data.model_dump())
-    data = UserTypeBaseSchema(type='DVD')
+    data = UserTypeBaseSchema(name='DVD')
     UserType.insert_one(data.model_dump())
     print("Default user types created")

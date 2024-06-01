@@ -2,23 +2,23 @@ import http from "@/http-common";
 
 class IncidentsDataService {
   getAll() {
-    return http.get("/api/users");
+    return http.get("/api/incidents");
   }
 
   create(data) {
-    return http.post("/api/users", data);
+    return http.post("/api/incidents", data);
   }
 
   update(id, data) {
-    return http.put(`/api/users/${id}`, data);
+    return http.put(`/api/incidents/${id}`, data);
   }
 
   delete(id) {
-    return http.delete(`/api/users/${id}`);
+    return http.delete(`/api/incidents/${id}`);
   }
 
-  getTypes() {
-    return http.get(`/api/users/types`);
+  getWorkers() {
+    return http.get(`/api/incidents/workers`);
   }
 }
 

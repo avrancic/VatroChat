@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import List, Optional
 
 class UserTypeBaseSchema(BaseModel):
-    type: Optional[str] = None
+    name: str = None
     
 class UserTypeSchema(UserTypeBaseSchema):
     id: str
@@ -12,14 +12,17 @@ class UserTypeSchema(UserTypeBaseSchema):
         from_attributes = True
 
 class UserBaseSchema(BaseModel):
-    name: Optional[str] = None
-    surname: Optional[str] = None
-    username: Optional[str] = None
+    name: str = None
+    surname: str = None
+    username: str = None
     type: Optional[UserTypeSchema] = None
     is_admin: bool = False
 
 class UserCreateSchema(UserBaseSchema):
     password: str
+
+class UserUpdateSchema(UserBaseSchema):
+    password: Optional[str]
 
 class UserSchema(UserBaseSchema):
     id: str
@@ -31,12 +34,18 @@ class UserLoginSchema(BaseModel):
     username: str = Field(default = None)
     password: str = Field(default = None)
 
+class IncidentWorkerSchema(BaseModel):
+    id: str
+    name: str
+    surname: str 
+    type: Optional[UserTypeSchema] = None
+    
 class IncidentBaseSchema(BaseModel):
-    title: Optional[str] = None
-    location: Optional[str] = None
+    title: str = None
+    location: str = None
     open_from: datetime = Field(default_factory=datetime.now)
     open_until: Optional[datetime] = None
-    workers: Optional[List[UserSchema]] = None
+    workers: Optional[List[IncidentWorkerSchema]] = None
 
 class IncidentSchema(IncidentBaseSchema):
     id: str
