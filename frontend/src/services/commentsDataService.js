@@ -1,6 +1,6 @@
 import http from "@/http-common";
 
-class AdminSettingsUsersDataService {
+class CommentsDataService {
   getAll() {
     return http.get("/api/users");
   }
@@ -22,4 +22,4 @@ class AdminSettingsUsersDataService {
   }
 }
 
-export default new AdminSettingsUsersDataService();
+export default new CommentsDataService();

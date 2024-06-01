@@ -1,65 +1,58 @@
-<template>
-  <div class="login-container">
-     <div class="login">
-        <div class="hover">Prijavite se na svoj račun</div>
-        <div class="body">
-           <form @submit.prevent="handleLogin">
-              <div class="item">
-                 <label>Korisničko ime</label>
-                 <input v-model="username" type="text" class="form-control rounded-left" placeholder="Username" />
-              </div>
-              <div class="item">
-                 <label>Lozinka</label>
-                 <input v-model="password" type="password" class="form-control rounded-left" placeholder="Password" />
-              </div>
-              <div class="item">
-                 <button>Prijavi me</button>
-              </div>
-           </form>
-        </div>
-     </div>
-  </div>
-</template>
-
-<script>
-import AuthService from "@/services/AuthService";
+<script setup>
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/authStore';
+import AuthService from '@/services/authService';
 
-export default {
-  setup() {
-     const authStore = useAuthStore();
-     return { authStore };
-  },
-  data() {
-     return {
-        username: '',
-        password: '',
-     };
-  },
-  methods: {
-     handleLogin() {
-        AuthService.login(this.username, this.password)
-           .then(response => {
-              this.authStore.setUser(response);
+const authStore = useAuthStore();
+const router = useRouter();
 
-              this.$router.push({ path: '/' })
-           })
-           .catch(e => {
-              console.log(e);
-           });
-     },
-  },
+const username = ref('');
+const password = ref('');
+
+const handleLogin = () => {
+  AuthService.login(username.value, password.value)
+    .then(response => {
+      authStore.setUser(response);
+      router.push({ path: '/' });
+    })
+    .catch(e => {
+      console.log(e);
+    });
 };
 </script>
 
+<template>
+   <div class="login-container">
+      <div class="login">
+         <div class="hover">Prijavite se na svoj račun</div>
+         <div class="body">
+            <form @submit.prevent="handleLogin">
+               <div class="item">
+                  <label>Korisničko ime</label>
+                  <input v-model="username" type="text" class="form-control rounded-left" placeholder="Username" />
+               </div>
+               <div class="item">
+                  <label>Lozinka</label>
+                  <input v-model="password" type="password" class="form-control rounded-left" placeholder="Password" />
+               </div>
+               <div class="item">
+                  <button>Prijavi me</button>
+               </div>
+            </form>
+         </div>
+      </div>
+   </div>
+</template>
+
 <style scoped>
 .login-container {
-  background: #f5f5f5;
+   background: #f5f5f5;
    display: flex;
    justify-content: center;
    align-items: center;
-   height: 100%; 
-   height: 100dvh; 
+   height: 100%;
+   height: 100dvh;
    width: 100%;
 }
 
@@ -163,22 +156,6 @@ export default {
 .login input::placeholder {
    color: #6c757d;
    opacity: 1
-}
-
-.copyright {
-   display: grid;
-   position: fixed;
-   bottom: 20px;
-   left: 20px;
-   color: gray
-}
-
-.copyright span:first-child {
-   font-size: 15px
-}
-
-.copyright span:last-child {
-   font-size: 10px
 }
 
 input:-webkit-autofill {

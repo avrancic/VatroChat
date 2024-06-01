@@ -2,7 +2,7 @@ import http from "@/http-common";
 
 class AuthService {
   login(username, password) {
-    return http.post('api/user/login', {
+    return http.post('api/auth/login', {
       username: username,
       password: password
     })
@@ -11,7 +11,7 @@ class AuthService {
       });
   }
   logout() {
-    return http.post('api/user/logout', {})
+    return http.post('api/auth/logout', {})
       .then(response => {
         return response;
       });

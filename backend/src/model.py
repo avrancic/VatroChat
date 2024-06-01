@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import List, Optional
 
 class UserTypeBaseSchema(BaseModel):
-    type: str = Field(default = None)
+    type: Optional[str] = None
     
 class UserTypeSchema(UserTypeBaseSchema):
     id: str
@@ -12,11 +12,11 @@ class UserTypeSchema(UserTypeBaseSchema):
         from_attributes = True
 
 class UserBaseSchema(BaseModel):
-    name: str = Field(default = None)
-    surname: str = Field(default = None)
-    username: str = Field(default = None)
-    type: UserTypeSchema | None = None
-    is_admin: bool = Field(default = False)
+    name: Optional[str] = None
+    surname: Optional[str] = None
+    username: Optional[str] = None
+    type: Optional[UserTypeSchema] = None
+    is_admin: bool = False
 
 class UserCreateSchema(UserBaseSchema):
     password: str
@@ -31,17 +31,25 @@ class UserLoginSchema(BaseModel):
     username: str = Field(default = None)
     password: str = Field(default = None)
 
-class IncidentsSchema(BaseModel):
-    description: str = Field(default = None)
-    users: Optional[List[UserSchema]] = None
-    active: bool = Field(default = True)
+class IncidentBaseSchema(BaseModel):
+    title: Optional[str] = None
+    location: Optional[str] = None
+    open_from: datetime = Field(default_factory=datetime.now)
+    open_until: Optional[datetime] = None
+    workers: Optional[List[UserSchema]] = None
 
-class ShiftsBaseSchema(BaseModel):
-    users: List[UserSchema] = []
-    from_time: datetime = Field(default = None)
-    to_time: datetime = Field(default = None)
-    
-class ShiftsSchema(ShiftsBaseSchema):
+class IncidentSchema(IncidentBaseSchema):
+    id: str
+
+    class Config:
+        from_attributes = True
+
+class CommentBaseSchema(BaseModel):
+    incident_id: str
+    created_at: datetime = Field(default_factory=datetime.now)
+    text: Optional[str] = None
+
+class CommentSchema(CommentBaseSchema):
     id: str
 
     class Config:
