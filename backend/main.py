@@ -112,19 +112,19 @@ def user_login(login_data: UserLoginSchema = Body(default=None)):
     else:
         raise HTTPException(status_code=400, detail="No user data provided!")
                 
-@app.get("/api/users", response_model=List[UserSchema], tags=["User administration"]) #, dependencies=[Depends(jwtBearer())]
+@app.get("/api/users", response_model=List[UserSchema], tags=["Users"]) #, dependencies=[Depends(jwtBearer())]
 def users_list():
     users = User.find()
     return [{**user, "id": str(user["_id"])} for user in users]
 
-@app.post("/api/users", response_model=UserSchema, tags=["User administration"])
+@app.post("/api/users", response_model=UserSchema, tags=["Users"])
 def create_user(new_user_data: UserCreateSchema = Body(default=None)):
     insert_result = User.insert_one(new_user_data.model_dump())
     new_user = User.find_one({"_id": insert_result.inserted_id})
     new_user['id'] = str(new_user['_id'])
     return new_user
 
-@app.put("/api/users/{user_id}", response_model=UserSchema, tags=["User administration"])
+@app.put("/api/users/{user_id}", response_model=UserSchema, tags=["Users"])
 async def update_user(user_id: str, user_data: UserUpdateSchema):
     existing_user = User.find_one({"_id": ObjectId(user_id)})
     if existing_user is None:
@@ -140,14 +140,14 @@ async def update_user(user_id: str, user_data: UserUpdateSchema):
     updated_user = User.find_one({"_id": ObjectId(user_id)})
     return UserSchema(id=str(updated_user['_id']), **user_data.dict())
 
-@app.delete("/api/users/{user_id}", tags=["User administration"])
+@app.delete("/api/users/{user_id}", tags=["Users"])
 async def delete_user(user_id: str):
     deleted_user = User.delete_one({"_id": ObjectId(user_id)})
     if deleted_user.deleted_count == 0:
         raise HTTPException(status_code=404, detail="User not found")
     return {"message": "User deleted successfully"}
 
-@app.get("/api/users/types", response_model=List[UserTypeSchema], tags=["User administration"])
+@app.get("/api/users/types", response_model=List[UserTypeSchema], tags=["Users"])
 async def users_types_list():
     user_types = UserType.find()
     return [{**user_type, "id": str(user_type["_id"])} for user_type in user_types]
