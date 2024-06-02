@@ -12,6 +12,7 @@ db = client[config("mongo_db")]
 User = db.users
 UserType = db.users_types
 Incident = db.incidents
+Comment = db.comments
 
 async def resetDB():
     for collection_name in db.list_collection_names():

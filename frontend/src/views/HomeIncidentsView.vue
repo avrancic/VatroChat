@@ -1,13 +1,17 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, getCurrentInstance } from 'vue';
 import { useRouter } from 'vue-router';
-
+import { useAuthStore } from '@/stores/authStore';
 import { format } from 'date-fns';
+import { createToast } from 'mosha-vue-toastify';
 
 import Datepicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 
 import IncidentsDataService from "@/services/incidentsDataService";
+const internalInstance = getCurrentInstance();
+
+const authStore = useAuthStore();
 
 const router = useRouter();
 
@@ -75,35 +79,134 @@ const closeAddEditModal = () => {
 const addEditItem = () => {
     const itemToEdit = incidents.value.find(i => i.id === currentId.value);
 
+    internalInstance.appContext.config.globalProperties.$Progress.start();
+
     if (!itemToEdit) {
         IncidentsDataService.create(addEditForm.value)
             .then((response) => {
-                incidents.value.push(response.data);
+                createToast({
+                    title: 'Intervencija kreirana',
+                },
+                    {
+                        position: 'top-right',
+                        showCloseButton: 'false',
+                        swipeClose: 'false',
+                        hideProgressBar: 'true',
+                        transition: 'bounce',
+                        type: 'success',
+                        showIcon: 'true',
+                    })
+
+                internalInstance.appContext.config.globalProperties.$Progress.finish();
+                incidents.value.unshift(response.data);
 
                 closeAddEditModal();
             })
             .catch(error => {
+                createToast({
+                    title: 'Greška prilikom kreiranja intervencije',
+                },
+                    {
+                        position: 'top-right',
+                        showCloseButton: 'false',
+                        swipeClose: 'false',
+                        hideProgressBar: 'true',
+                        transition: 'bounce',
+                        type: 'danger',
+                        showIcon: 'true',
+                    })
+
+                internalInstance.appContext.config.globalProperties.$Progress.fail();
                 console.log(error);
             });
     } else {
         IncidentsDataService.update(itemToEdit.id, addEditForm.value)
             .then((response) => {
+                createToast({
+                    title: 'Intervencija ažurirana',
+                },
+                    {
+                        position: 'top-right',
+                        showCloseButton: 'false',
+                        swipeClose: 'false',
+                        hideProgressBar: 'true',
+                        transition: 'bounce',
+                        type: 'success',
+                        showIcon: 'true',
+                    })
+
+                internalInstance.appContext.config.globalProperties.$Progress.finish();
+
                 const index = incidents.value.findIndex(i => i.id === currentId.value);
                 incidents.value[index] = response.data;
                 closeAddEditModal();
             })
             .catch(error => {
+                createToast({
+                    title: 'Greška prilikom ažuriranja intervencije',
+                },
+                    {
+                        position: 'top-right',
+                        showCloseButton: 'false',
+                        swipeClose: 'false',
+                        hideProgressBar: 'true',
+                        transition: 'bounce',
+                        type: 'danger',
+                        showIcon: 'true',
+                    })
+
+                internalInstance.appContext.config.globalProperties.$Progress.fail();
                 console.log(error);
             });
     }
 };
 
 const removeIncident = () => {
-    const index = incidents.value.findIndex(incident => incident.id === currentId.value);
+    internalInstance.appContext.config.globalProperties.$Progress.start();
 
-    if (index !== -1) {
-        incidents.value.splice(index, 1);
-    }
+    IncidentsDataService.delete(currentId.value)
+        .then(response => {
+            createToast({
+                title: 'Intervencija izbrisana',
+            },
+                {
+                    position: 'top-right',
+                    showCloseButton: 'false',
+                    swipeClose: 'false',
+                    hideProgressBar: 'true',
+                    transition: 'bounce',
+                    type: 'success',
+                    showIcon: 'true',
+                })
+
+            internalInstance.appContext.config.globalProperties.$Progress.finish();
+
+            const index = incidents.value.findIndex(incident => incident.id === currentId.value);
+
+            if (index !== -1) {
+                incidents.value.splice(index, 1);
+            }
+
+            closeRemoveModal();
+        })
+        .catch(e => {
+            createToast({
+                title: 'Greška prilikom izbrisanja intervencije',
+            },
+                {
+                    position: 'top-right',
+                    showCloseButton: 'false',
+                    swipeClose: 'false',
+                    hideProgressBar: 'true',
+                    transition: 'bounce',
+                    type: 'danger',
+                    showIcon: 'true',
+                })
+
+            internalInstance.appContext.config.globalProperties.$Progress.fail();
+            console.log(e);
+        });
+
 
     closeRemoveModal();
 };
@@ -123,19 +226,26 @@ const filterIncidents = () => {
 };
 
 const getData = () => {
+    internalInstance.appContext.config.globalProperties.$Progress.start();
+
     IncidentsDataService.getAll()
         .then(response => {
             incidents.value = response.data;
-        })
-        .catch(e => {
-            console.log(e);
-        });
 
-    IncidentsDataService.getWorkers()
-        .then(response => {
-            workers.value = response.data;
+            IncidentsDataService.getWorkers()
+                .then(response => {
+                    internalInstance.appContext.config.globalProperties.$Progress.finish();
+
+                    workers.value = response.data;
+                })
+                .catch(e => {
+                    internalInstance.appContext.config.globalProperties.$Progress.fail();
+
+                    console.log(e);
+                });
         })
         .catch(e => {
+            internalInstance.appContext.config.globalProperties.$Progress.fail();
             console.log(e);
         });
 }
@@ -149,38 +259,38 @@ getData();
 
 <template>
     <div class="page-content container">
-        <div class="row mt-5">
+        <div class="row mt-5 d-flex align-items-center">
             <div class="col">
-                <input type="text" class="form-control form-input p-2 ps-3" placeholder="Search anything..."
+                <input type="text" class="form-control form-input p-2 ps-3" placeholder="Pretraži nešto..."
                     v-model="searchQuery">
             </div>
 
-            <div class="col-auto text-end">
+            <div class="col-auto text-end" v-if="authStore.isAdmin">
                 <input type="submit" value="Dodaj intervenciju" class="btn btn-success" @click="openAddEditModal">
             </div>
         </div>
 
-        <MasonryWall class="row mt-4" :items="filterIncidents()" :ssr-columns="1" :column-width="400">
-            <template #default="{ item, index }">
-                <div :style="{ height: `${item}px` }" class="card incident-card-body shadow-sm"
-                    @click="handleIncidentClick(item.id)">
+        <div class="items mt-4">
+            <div class="item" v-for="item in filterIncidents()" :key="item.id">
+                <div :style="{ height: `${item}px` }" class="card shadow-sm" @click="handleIncidentClick(item.id)">
                     <h5 class="mb-3">{{ item.title }}</h5>
                     <small class="text-muted p-t-30 db mt-2">Razdoblje:</small>
-                    <div>{{ format(item.open_from, 'dd.MM.yyyy hh:mm') }}{{ (item.open_until != null ? " -> " +
-                        format(item.open_until, 'dd.MM.yyyy hh:mm') : "") }}</div>
+                    <div>{{ format(item.open_from, 'dd.MM.yyyy. hh:mm') }}{{ (item.open_until != null ? " -> " +
+                        format(item.open_until, 'dd.MM.yyyy. hh:mm') : "") }}</div>
                     <small class="text-muted p-t-30 db mt-2">Adresa:</small>
                     <div>{{ item.location }}</div>
                     <small class="text-muted p-t-30 db mt-2">Radnici:</small>
                     <div>{{ item.workers.map(entry => entry.name + ' ' + entry.surname).join(', ') }}</div>
-                    <div class="mt-auto d-flex justify-content-end pt-4">
+                    <div class="mt-auto d-flex justify-content-end pt-4" v-if="authStore.isAdmin">
                         <button class="btn btn-outline-primary btn-sm me-2"
-                            @click.stop="openAddEditModal(item.id)">Edit</button>
+                            @click.stop="openAddEditModal(item.id)">Uredi</button>
                         <button class="btn btn-outline-danger btn-sm"
-                            @click.stop="openRemoveModal(item.id)">Remove</button>
+                            @click.stop="openRemoveModal(item.id)">Ukloni</button>
                     </div>
                 </div>
-            </template>
-        </MasonryWall>
+            </div>
+        </div>
+
     </div>
 
     <!-- Edit/Add Incident Modal -->
@@ -199,13 +309,13 @@ getData();
                             <input type="text" class="form-control" id="incident-title" v-model="addEditForm.title">
                         </div>
                         <div class="mb-3">
-                            <label for="incident-from" class="col-form-label">Od:</label>
-                            <Datepicker v-model="addEditForm.open_from" :enableTimePicker="true"
+                            <label class="col-form-label">Intervencija od:</label>
+                            <Datepicker v-model="addEditForm.open_from" id="incident-from" :enableTimePicker="true"
                                 format="dd.MM.yyyy HH:mm" />
                         </div>
                         <div class="mb-3">
-                            <label for="incident-to" class="col-form-label">Do:</label>
-                            <Datepicker v-model="addEditForm.open_until" :enableTimePicker="true"
+                            <label class="col-form-label">Intervencija do:</label>
+                            <Datepicker v-model="addEditForm.open_until" id="incident-to" :enableTimePicker="true"
                                 format="dd.MM.yyyy HH:mm" />
                         </div>
                         <div class="mb-3">
@@ -215,9 +325,8 @@ getData();
                         </div>
                         <div class="mb-3">
                             <label for="incident-workers" class="col-form-label">Radnici:</label>
-                            <multi-select v-model="addEditForm.workers" :options="workers" :hide-selected="true"
-                                track-by="id" :multiple="true" :custom-label="workersLabel">
-                            </multi-select>
+                            <multi-select id="incident-workers" v-model="addEditForm.workers" :options="workers"
+                                :hide-selected="true" track-by="id" :multiple="true" :custom-label="workersLabel" />
                         </div>
                     </form>
                 </div>
@@ -250,16 +359,23 @@ getData();
     </div>
 
     <div v-if="activeAddEditModal || activeRemoveModal" class="modal-backdrop fade show"></div>
-
 </template>
 
 <style scoped>
+.items {
+    column-count: 3;
+    column-gap: 25px;
+}
+
+.item {
+    display: inline-block;
+    width: 100%;
+}
+
 .card {
     cursor: pointer;
     user-select: none;
-}
 
-.incident-card-body {
     position: relative;
     display: flex;
     flex-direction: column;
@@ -270,28 +386,15 @@ getData();
     padding: 1.57rem;
 }
 
-.incident-title {
-    margin-bottom: 0;
-}
-
-.incident-date {
-    font-size: 14px;
-    color: #6c757d;
-}
-
-.incident-content {
-    margin-top: 10px;
-}
-
-@media (max-width: 767.98px) {
-    .incident-item {
-        max-width: 100%;
+@media only screen and (max-width: 600px) {
+    .items {
+        column-count: 2;
     }
 }
 
-@media (max-width: 991.98px) {
-    .incident-item {
-        max-width: 216px;
+@media only screen and (max-width: 400px) {
+    .items {
+        column-count: 1;
     }
 }
 </style>

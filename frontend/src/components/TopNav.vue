@@ -23,8 +23,6 @@ const currentUser = authStore.getIme + " " + authStore.getPrezime;
       </div>
     </div>
   </nav>
-
-
 </template>
 
 <style>

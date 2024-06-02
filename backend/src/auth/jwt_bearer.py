@@ -10,10 +10,10 @@ class jwtBearer(HTTPBearer):
         credentials: HTTPAuthorizationCredentials = await super(jwtBearer, self).__call__(request)
         if credentials:
             if not credentials.scheme == "Bearer":
-                raise HTTPException(status_code = 403, detail="Invalid or Expired Token!")
+                raise HTTPException(status_code = 401, detail="Invalid or Expired Token!")
             return credentials.credentials
         else:
-            raise HTTPException(status_code = 403, detail="Invalid or Expired Token!")
+            raise HTTPException(status_code = 401, detail="Invalid or Expired Token!")
 
     def verify_jwt(self, jwt_token : str):
         isTokenValid : bool = False
@@ -21,3 +21,13 @@ class jwtBearer(HTTPBearer):
         if payload:
             isTokenValid = True
         return isTokenValid
+    
+    async def get_current_user_id(self, request: Request) -> str:
+        token = await self(request)
+
+        payload = decodeJWT(token)
+        
+        if not payload:
+            return None
+        
+        return payload.get("id")

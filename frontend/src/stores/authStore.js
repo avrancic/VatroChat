@@ -3,39 +3,39 @@ import { ref, computed } from 'vue';
 
 export const useAuthStore = defineStore('auth', () => {
   // State
-  const ime = ref(null);
-  const prezime = ref(null);
+  const name = ref(null);
+  const surname = ref(null);
+  const is_admin = ref(false);
   const token = ref(null);
-  const admin = ref(false);
 
   // Getters
-  const getIme = computed(() => ime.value);
-  const getPrezime = computed(() => prezime.value);
+  const getName = computed(() => name.value);
+  const getSurname = computed(() => surname.value);
   const isLoggedIn = computed(() => token.value !== null);
   const getToken = computed(() => token.value);
-  const isAdmin = computed(() => admin.value);
+  const isAdmin = computed(() => is_admin.value);
 
   // Actions
   const setUser = (data) => {
-    ime.value = data.ime;
-    prezime.value = data.prezime;
+    name.value = data.name;
+    surname.value = data.surname;
+    is_admin.value = data.is_admin;
     token.value = data.token;
-    admin.value = data.isAdmin;
   };
 
   const clearUser = () => {
+    is_admin.value = false;
     token.value = null;
-    admin.value = false;
   };
 
   // Persist state (if using pinia-plugin-persist)
   return {
-    ime,
-    prezime,
+    name,
+    surname,
+    is_admin,
     token,
-    admin,
-    getIme,
-    getPrezime,
+    getName,
+    getSurname,
     isLoggedIn,
     getToken,
     isAdmin,

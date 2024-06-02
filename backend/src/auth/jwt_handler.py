@@ -4,30 +4,28 @@ import jwt
 from decouple import config
 
 JWT_SECRET = config("secret")
-JSWT_ALGORITHM = config("algorithm")
-
-# Function returns the generated tokens
-def token_response(ime: str, prezime: str, token: str, isAdmin : bool):
-    return {
-        "ime" : ime,
-        "prezime" : prezime,
-        "isAdmin" : isAdmin,
-        "token" : token
-    }
+JWT_ALGORITHM = config("algorithm")
 
 # Function used for signing the JWT string
-def signJWT(ime: str, prezime: str, userId : str, isAdmin : bool):
+def signJWT(userId : str):
     payload = {
-        "userId": userId,
+        "id": userId,
         "expiry": time.time() + 600
     }
-    token = jwt.encode(payload, JWT_SECRET, algorithm=JSWT_ALGORITHM)
-    return token_response(ime, prezime, token, isAdmin)
+    
+    token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+    
+    return token
 
 # Function used to decode the JWT string
 def decodeJWT(token: str):
     try:
-        decode_token = jwt.decode(token, JWT_SECRET, algorithm=JSWT_ALGORITHM)
-        return decode_token if decode_token['expires'] >= time.time() else None
-    except:
-        return {}
+        decode_token = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        if decode_token and decode_token.get('expiry', 0) >= time.time():
+            return decode_token
+        else:
+            return None  # Token has expired or invalid
+    except jwt.ExpiredSignatureError:
+        return None  # Token has expired
+    except jwt.InvalidTokenError:
+        return None  # Invalid token

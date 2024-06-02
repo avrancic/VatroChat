@@ -33,18 +33,21 @@ const router = createRouter({
       children: [
         {
           path: '/',
-          name: 'gom',
-          component: HomeIncidentsView
+          name: 'Incidents',
+          component: HomeIncidentsView,
+          beforeEnter: authGuard,
         },
         {
           path: '/incident',
-          name: 'aa',
-          component: HomeIncidentView
+          name: 'Incident',
+          component: HomeIncidentView,
+          beforeEnter: authGuard,
         },
         {
           path: '/users',
           name: 'Users',
-          component: UsersView
+          component: UsersView,
+          beforeEnter: authGuard,
         }
       ]
     },

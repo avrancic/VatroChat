@@ -4,6 +4,8 @@ import { RouterLink, RouterView } from 'vue-router'
 
 <template>
   <RouterView />
+
+  <vue-progress-bar></vue-progress-bar>
 </template>
 
 <style scoped>

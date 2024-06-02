@@ -11,14 +11,19 @@ const username = ref('');
 const password = ref('');
 
 const handleLogin = () => {
-  AuthService.login(username.value, password.value)
-    .then(response => {
-      authStore.setUser(response);
-      router.push({ path: '/' });
-    })
-    .catch(e => {
-      console.log(e);
-    });
+   internalInstance.appContext.config.globalProperties.$Progress.start();
+
+   AuthService.login(username.value, password.value)
+      .then(response => {
+         internalInstance.appContext.config.globalProperties.$Progress.finish();
+
+         authStore.setUser(response);
+         router.push({ path: '/' });
+      })
+      .catch(e => {
+         internalInstance.appContext.config.globalProperties.$Progress.fail();
+         console.log(e);
+      });
 };
 </script>
 
