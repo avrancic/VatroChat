@@ -1,8 +1,10 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, getCurrentInstance } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/authStore.js';
 import AuthService from '@/services/authService.js';
+
+const internalInstance = getCurrentInstance();
 
 const authStore = useAuthStore();
 const router = useRouter();
