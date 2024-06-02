@@ -2,11 +2,13 @@
 import { ref, onMounted, onBeforeMount, getCurrentInstance } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { createToast } from 'mosha-vue-toastify';
+import { useAuthStore } from '@/stores/authStore';
 
 import IncidentsDataService from "@/services/incidentsDataService.js";
 
 import { format } from 'date-fns';
 const internalInstance = getCurrentInstance();
+const authStore = useAuthStore();
 
 const router = useRouter();
 const route = useRoute();
@@ -131,6 +133,7 @@ const addEditComment = () => {
                     })
 
                 internalInstance.appContext.config.globalProperties.$Progress.finish();
+
                 const index = comments.value.findIndex(i => i.id === currentId.value);
 
                 comments.value[index] = response.data;
@@ -152,6 +155,7 @@ const addEditComment = () => {
                     })
 
                 internalInstance.appContext.config.globalProperties.$Progress.fail();
+
                 console.log(error);
             });
     }
@@ -159,6 +163,7 @@ const addEditComment = () => {
 
 const removeComment = () => {
     internalInstance.appContext.config.globalProperties.$Progress.start();
+
     IncidentsDataService.deleteComment(incident.value.id, currentId.value)
         .then(response => {
             createToast({
@@ -175,6 +180,7 @@ const removeComment = () => {
                 })
 
             internalInstance.appContext.config.globalProperties.$Progress.finish();
+
             const index = comments.value.findIndex(i => i.id === currentId.value);
 
             if (index !== -1) {
@@ -198,6 +204,7 @@ const removeComment = () => {
                 })
 
             internalInstance.appContext.config.globalProperties.$Progress.fail();
+
             console.log(e);
         });
 
@@ -215,15 +222,18 @@ const getData = () => {
             IncidentsDataService.getComments(route.query.id)
                 .then(response => {
                     internalInstance.appContext.config.globalProperties.$Progress.finish();
+
                     comments.value = response.data;
                 })
                 .catch(e => {
                     internalInstance.appContext.config.globalProperties.$Progress.fail();
+
                     console.log(e);
                 });
         })
         .catch(e => {
             internalInstance.appContext.config.globalProperties.$Progress.fail();
+
             console.log(e);
         });
 }
@@ -281,7 +291,7 @@ const filterComments = () => {
                     <div>{{ format(item.created_at, 'dd.MM.yyyy. hh:mm') }}</div>
                     <small class="text-muted p-t-30 db mt-2">Bilješka:</small>
                     <div>{{ item.text }}</div>
-                    <div class="mt-auto d-flex justify-content-end pt-4">
+                    <div class="mt-auto d-flex justify-content-end pt-4" v-if="authStore.isAdmin">
                         <button class="btn btn-outline-primary btn-sm me-2"
                             @click.stop="openAddEditModal(item.id)">Uredi</button>
                         <button class="btn btn-outline-danger btn-sm"
