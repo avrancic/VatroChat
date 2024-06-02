@@ -24,6 +24,7 @@ origins = [
     "http://localhost:5173",
     "http://0.0.0.0:8000",
     "http://localhost:8000",
+    "https://vatrochat-frontend.onrender.com",
     "https://vatrochat-backend.onrender.com",
 ]
 
