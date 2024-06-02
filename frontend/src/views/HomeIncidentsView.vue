@@ -7,7 +7,7 @@ import { format } from 'date-fns';
 import Datepicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 
-import IncidentsDataService from "@/services/incidentsDataService";
+import IncidentsDataService from "../services/incidentsDataService";
 
 const router = useRouter();
 
