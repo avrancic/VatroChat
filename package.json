@@ -5,7 +5,7 @@
     "build": "npm install && cd ./frontend && npm install && cd ../backend && pip install -r requirements.txt",
     "start": "concurrently \"npm run backend\" \"npm run frontend\"",
     "backend": "cd backend && gunicorn -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000 main:app",
-    "frontend": "cd ../frontend && npm run serve"
+    "frontend": "cd frontend && npm run serve"
   },
   "dependencies": {
     "concurrently": "^6.2.1"
