@@ -5,3 +5,4 @@ pyJWT
 python-decouple
 
 pymongo
+faker

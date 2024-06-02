@@ -9,10 +9,14 @@ from src.auth.jwt_handler import signJWT
 from src.database import User, Incident, resetDB, UserType
 from bson import ObjectId
 from typing import List, Optional
+from faker import Faker
+import random
+from datetime import timedelta
 
 from src.auth.jwt_bearer import jwtBearer
 
 app = FastAPI()
+faker = Faker()
 
 origins = [
     "http://localhost:5173",
@@ -26,14 +30,66 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/", tags=["test"])
-def test():
-    return User.find_one({'username' : "test"})
-
-@app.get("/reset", tags=["test"])
-async def reset():
+@app.get("/init/resetdb", tags=["Initial"])
+async def resetdb():
     await resetDB()
     return {"message": "Database reset complete!"}
+
+@app.get("/init/create_fake_users", tags=["Initial"])
+async def create_fake_users():
+    user_type = UserType.find_one()
+
+    if user_type is None:
+        raise HTTPException(status_code=404, detail="No user type found")
+
+    for _ in range(20):
+        fake_user = UserCreateSchema(
+            name=faker.first_name(),
+            surname=faker.last_name(),
+            username=faker.user_name(),
+            password="12345",
+            type=UserTypeSchema(id=str(user_type["_id"]), name=user_type["name"])
+        )
+
+        User.insert_one(fake_user.model_dump())
+    return "Success"
+
+@app.get("/init/create_fake_incidents", tags=["Initial"])
+async def create_fake_incidents():
+    for _ in range(20):
+        cursor = User.find()
+    
+        users = list(cursor)
+
+        # Convert each user to an IncidentWorkerSchema object
+        incident_workers = []
+        
+        selected_users = random.sample(users, k=random.randint(1, min(5, len(users))))
+        
+        for user in selected_users:
+            incident_worker = IncidentWorkerSchema(
+                id=str(user['_id']),  # You might need to adjust these fields based on your User schema
+                name=user['name'],  # You might need to adjust these fields based on your User schema
+                surname=user['surname'],  # You might need to adjust these fields based on your User schema
+                type=None  # Placeholder for user type; you'll need to adjust this based on your schema
+            )
+            incident_workers.append(incident_worker)
+        
+        open_from = faker.date_time_this_year()
+        open_until = open_from + timedelta(days=faker.random_int(min=1, max=30))
+
+        fake_incident = IncidentBaseSchema(
+            title=faker.sentence(),
+            location=faker.address(),
+            open_from=open_from,
+            open_until=open_until,
+            workers=incident_workers
+        )
+
+        # Insert the fake incident into the database
+        Incident.insert_one(fake_incident.model_dump())
+
+    return "Success"
 
 @app.post("/api/auth/login", tags=["Authentication"])
 def user_login(login_data: UserLoginSchema = Body(default=None)):
