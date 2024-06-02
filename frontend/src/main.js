@@ -4,7 +4,7 @@ import 'vue-good-table-next/dist/vue-good-table-next.css'
 import 'vue-multiselect/dist/vue-multiselect.css'
 import MasonryWall from '@yeger/vue-masonry-wall'
 
-import './assets/main.css'
+import '@/assets/main.css'
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'

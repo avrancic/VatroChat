@@ -1,10 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
-import LoginView from '../views/LoginView.vue';
-import HomeView from '../views/HomeView.vue'
-import HomeIncidentsView from '../views/HomeIncidentsView.vue'
-import HomeIncidentView from '../views/HomeIncidentView.vue'
-import UsersView from '../views/UsersView.vue'
+import LoginView from '@/views/LoginView.vue';
+import HomeView from '@/views/HomeView.vue'
+import HomeIncidentsView from '@/views/HomeIncidentsView.vue'
+import HomeIncidentView from '@/views/HomeIncidentView.vue'
+import UsersView from '@/views/UsersView.vue'
 
 import { useAuthStore } from '@/stores/authStore';
 
