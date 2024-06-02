@@ -12,14 +12,18 @@ from typing import List, Optional
 from faker import Faker
 import random
 from datetime import timedelta
+from fastapi.staticfiles import StaticFiles
 
 from src.auth.jwt_bearer import jwtBearer
 
 app = FastAPI()
+
 faker = Faker()
 
 origins = [
     "http://localhost:5173",
+    "http://0.0.0.0:8000",
+    "http://localhost:8000",
 ]
 
 app.add_middleware(
