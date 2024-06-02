@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-import UsersDataService from "@/services/usersDataService";
+import UsersDataService from "@/services/usersDataService.js";
 
 const router = useRouter();
 
