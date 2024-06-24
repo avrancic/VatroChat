@@ -6,7 +6,7 @@ axios.defaults.withCredentials = true
 
 const api = axios.create({
     baseURL: 'http://localhost:8000/', // REST API base URL
-baseURL: 'https://vatrochat-backend.onrender.com/', // REST API base URL
+//baseURL: 'https://vatrochat-backend.onrender.com/', // REST API base URL
 });
 
 api.interceptors.response.use(resp => {
